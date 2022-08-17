@@ -7,7 +7,7 @@ pygame.font.init()
 s_width = 800
 s_height = 700
 play_width = 300  # meaning 300 // 10 = 30 width per block
-play_height = 600  # meaning 600 // 20 = 20 height per block
+play_height = 600  # meaning 600 // 20 = 30 height per block
 block_size = 30
 
 top_left_x = (s_width - play_width) // 2
@@ -15,86 +15,98 @@ top_left_y = s_height - play_height
 
 # SHAPE FORMATS
 
-S = [['.....',
-      '.....',
-      '..00..',
-      '.00...',
-      '.....'],
-     ['.....',
-      '..0..',
-      '..00.',
-      '...0.',
-      '.....']]
+S = [['....',
+      '..00',
+      '.00.',
+      '....'],
+     ['....',
+      '..0.',
+      '..00',
+      '...0'],
+     ['....',
+      '....',
+      '..00',
+      '.00.'],
+     ['....',
+      '.0..',
+      '.00.',
+      '..0.']
+     ]
 
-Z = [['.....',
-      '.....',
-      '.00..',
-      '..00.',
-      '.....'],
-     ['.....',
-      '..0..',
-      '.00..',
-      '.0...',
-      '.....']]
+Z = [['....',
+      '.00.',
+      '..00',
+      '....'],
+     ['....',
+      '...0',
+      '..00',
+      '..0.'],
+     ['....',
+      '....',
+      '.00.',
+      '..00'],
+     ['....',
+      '..0.',
+      '.00.',
+      '.0..']
+     ]
 
-I = [['..0..',
-      '..0..',
-      '..0..',
-      '..0..',
-      '.....'],
-     ['.....',
-      '0000.',
-      '.....',
-      '.....',
-      '.....']]
+I = [['....',
+      '0000',
+      '....',
+      '....'],
+     ['..0.',
+      '..0.',
+      '..0.',
+      '..0.'],
+     ['....',
+      '....',
+      '0000',
+      '....'],
+     ['.0..',
+      '.0..',
+      '.0..',
+      '.0..'],
+     ]
 
-O = [['.....',
-      '.....',
-      '.00..',
-      '.00..',
-      '.....']]
+O = [['....',
+      '.00.',
+      '.00.',
+      '....']]
 
-J = [['.....',
-      '.0...',
-      '.000.',
-      '.....',
-      '.....'],
-     ['.....',
-      '..00.',
-      '..0..',
-      '..0..',
-      '.....'],
-     ['.....',
-      '.....',
-      '.000.',
-      '...0.',
-      '.....'],
-     ['.....',
-      '..0..',
-      '..0..',
-      '.00..',
-      '.....']]
+J = [['....',
+      '.0..',
+      '.000',
+      '....'],
+     ['....',
+      '..00',
+      '..0.',
+      '..0.'],
+     ['....',
+      '....',
+      '.000',
+      '...0'],
+     ['....',
+      '..0.',
+      '..0.',
+      '.00.']]
 
-L = [['.....',
-      '...0.',
-      '.000.',
-      '.....',
-      '.....'],
-     ['.....',
-      '..0..',
-      '..0..',
-      '..00.',
-      '.....'],
-     ['.....',
-      '.....',
-      '.000.',
-      '.0...',
-      '.....'],
-     ['.....',
-      '.00..',
-      '..0..',
-      '..0..',
-      '.....']]
+L = [['....',
+      '...0',
+      '.000',
+      '....'],
+     ['....',
+      '..0.',
+      '..0.',
+      '..00'],
+     ['....',
+      '....',
+      '.000',
+      '.0..'],
+     ['....',
+      '.00.',
+      '..0.',
+      '..0.']]
 
 T = [['.....',
       '..0..',
@@ -274,6 +286,18 @@ def draw_window(surface, grid, score=0):
     # pygame.display.update()
 
 
+def update_score(nscore):
+    with open('scores.txt', 'r') as f:
+        lines = f.readlines()
+        score = lines[0].strip()
+
+    with open('scores.txt', 'w') as f:
+        if int(score) > nscore:
+            f.write(str(score))
+        else:
+            f.write(str(nscore))
+
+
 def main(win):
     locked_positions = {}
     grid = create_grid(locked_positions)
@@ -324,6 +348,10 @@ def main(win):
                     current_piece.rotation += 1
                     if not valid_space(current_piece, grid):
                         current_piece.rotation -= 1
+                if event.key == pygame.K_z:
+                    current_piece.rotation -= 1
+                    if not valid_space(current_piece, grid):
+                        current_piece.rotation += 1
 
         shape_pos = convert_shape_format(current_piece)
 
@@ -339,7 +367,7 @@ def main(win):
             current_piece = next_piece
             next_piece = get_shape()
             change_piece = False
-            score += 2 ** (clear_rows(grid, locked_positions) - 1) * 100
+            score += int(2 ** (clear_rows(grid, locked_positions) - 1) * 100)
 
         draw_window(win, grid, score)
         draw_next_shape(next_piece, win)
@@ -350,7 +378,7 @@ def main(win):
             pygame.display.update()
             pygame.time.delay(1500)
             run = False
-    pygame.display.quit()
+            update_score(score)
 
 
 def main_menu(win):
